@@ -1,0 +1,22 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "citation-labs-os",
+  "metadata": {
+    "description": "The Citation Labs Operating System as a Claude skill: evidence-first AI visibility, information design, shared decision, and business impact work."
+  },
+  "owner": {
+    "name": "greentechgear"
+  },
+  "plugins": [
+    {
+      "name": "citation-labs-os",
+      "description": "Run the Citation Labs Operating System (Garrett French's four Field Guides and six assistant tasks) to diagnose AI visibility, plan and re-test information changes, prepare interviews, and trace business impact without inflating claims.",
+      "version": "0.2.2",
+      "author": { "name": "greentechgear" },
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://citationlabs.com/operating-system/",
+      "tags": ["seo", "geo", "ai-visibility", "llm-citations", "citation-labs", "skills"]
+    }
+  ]
+}

@@ -1,0 +1,441 @@
+instrument: Thinking Inspector
+surface: MCP
+mode: process
+card_version: '0.2'
+confirmed_on: '2026-09-09'
+confirmed_against:
+- get_run_result on a Product X 4-condition run (include_reasoning=true)
+- compare_runs include=[read_urls] on two Product X runs (132 rows)
+pin: Returned comparison profile only; relationship to original execution remains unverified.
+briefing: TI_MCP_Briefing_for_Assistant_reviewed_v0_3.md
+tool_count:
+  read: 6
+  write_reversible: 0
+  write_irreversible: 1
+engines:
+- 'OpenAI models only (used: gpt-5.6)'
+cells:
+  prompt.text:
+    state: 'YES'
+    class: direct
+    via: get_run_result → query; compare_runs / get_compare_results with include outputs
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  prompt.stable_id:
+    state: PARTIAL
+    class: direct
+    via: run_id is stable; the prompt itself has no id separate from the run
+    caveat: Use investigator-owned prompt/version/condition IDs linked to original run IDs and exact text. Text
+      alone does not distinguish separate conditions or repetitions.
+    evidence: 2026-09-09 schema
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  prompt.grouping:
+    state: PARTIAL
+    class: direct
+    via: job_id groups the prompts submitted together; `label` on the job
+    caveat: Grouping by submission batch; role labels mapped separately. Confirm the current batch cap from the
+      live definition.
+    evidence: TI briefing sections 2 and 4; former six-job claim withheld.
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  prompt.version_history:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: Runs are immutable snapshots, so wording never changes after the fact — but there is no link between
+      versions of a prompt across jobs.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  prompt.provenance_field:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: Only the free-text job `label`. Everything else lives in the prompt text or in our own records.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  prompt.situation_record:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: Written into the prompt text with a version string (SYNTHETIC_ASTERON_v1.0).
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  baseline.platform_identity:
+    state: 'YES'
+    class: direct
+    via: get_run_result → model, effort
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  baseline.multi_engine:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: OpenAI only. The successor-tool requirement in the R4 method is exactly this cell.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  baseline.timestamp:
+    state: 'YES'
+    class: direct
+    via: get_run_result.created_at for run creation; comparison generatedAt recorded separately
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  baseline.run_id:
+    state: 'YES'
+    class: direct
+    via: run_id ties prompt, settings, output, sources, usage
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  baseline.run_history:
+    state: 'YES'
+    class: direct
+    via: list_runs (by prompt text or status); list_compare_jobs
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  baseline.repeats_within_run:
+    state: 'YES'
+    class: direct
+    via: run_compare → runs (default 6); each repetition is its own run_id
+    caveat: Exploratory work has used runs=1; any difference observed at runs=1 is provisional. Say so.
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  baseline.competitors_scored:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: No entity concept. Brand/competitor presence is coded from output text by the analyst.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  baseline.verbatim_answer:
+    state: 'YES'
+    class: direct
+    via: get_run_result → output; include=[outputs] on compare_runs
+    caveat: Direct by run_id — no indirect path. Export to file is assistant-side (see access.file_export).
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  baseline.settings:
+    state: PARTIAL
+    class: direct
+    via: get_run_result.model and effort
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+    caveat: Full original instructions, locale, search configuration and history behavior are not established by
+      these fields.
+  baseline.execution_pin:
+    state: UNKNOWN
+    class: unavailable
+    via: ''
+    caveat: Comparison profileVersion does not establish original execution identity.
+    evidence: ''
+    evidence_state_hint: Classify the actual finding from its evidence; capability state is separate.
+  process.query_fanout:
+    state: 'YES'
+    class: direct
+    via: include=[query_fanout] → ordered queries per run
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  process.surfaced_set:
+    state: 'YES'
+    class: direct
+    via: Single-run sources[]; comparison read_urls grouped by URL with per_role flags; resolve labels before deriving
+      run-by-URL rows
+    caveat: Surfaced membership is observable under the stated convention; full reading or page fetching is not
+      established.
+    evidence: '2026-09-09 pull: counts.pages 78 vs counts.cited 8 on one run'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+    payload_shape: single_run_flat_and_comparison_url_grouped
+  process.explicit_opens:
+    state: 'YES'
+    class: direct
+    via: read_urls → opened_any, per_role[].opened; sources[].opened
+    evidence: '2026-09-09 pull: counts.opened 3 on one run'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  process.query_url_linkage:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: Queries and surfaced URLs are two lists per run. Any query→URL causal claim is unsupported.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  process.retrieval_rank:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  process.reasoning_trace:
+    state: 'YES'
+    class: derived
+    via: get_run_result(include_reasoning=true) → reasoning
+    caveat: Legacy observation ID; the actual field is a prose summary, separate from recorded search events.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: Returned summary text can be documented; its claims require separate support.
+  zone.ranked_in_result:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: Surfaced set is downstream of the engine's search; not upstream availability.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  zone.retrieved:
+    state: 'YES'
+    class: direct
+    via: process.surfaced_set under declared convention; explicit opens separately recorded
+    caveat: Preserve SURFACED, OPENED, CITED and raw RETRIEVED=NOT_OBSERVABLE. The guide calls surfaced/consulted
+      membership retrieved.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  zone.cited:
+    state: 'YES'
+    class: direct
+    via: read_urls → cited_any, per_role[].cited; sources[].cited; counts.cited, counts.citations
+    caveat: Per-run URL flags available. Inspect answer text for consequential uses. cited and citations counters
+      require distinct definitions.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  zone.mentioned:
+    state: EXPORT-EXTERNAL
+    class: external_coding
+    via: output text
+    caveat: No entity concept; mention is coded by the analyst.
+    evidence: '2026-09-09'
+    evidence_state_hint: analyst-assigned
+  zone.recommended:
+    state: EXPORT-EXTERNAL
+    class: external_coding
+    via: output text
+    evidence: '2026-09-09'
+    evidence_state_hint: analyst-assigned
+  zone.accuracy_framing:
+    state: EXPORT-EXTERNAL
+    class: external_coding
+    via: output text; sources[] for tracing a claim to its cited support
+    caveat: Stronger raw material than XOFU for tracing, because cited URLs are per-run and legible.
+    evidence: '2026-09-09'
+    evidence_state_hint: analyst-assigned
+  zone.answer_adequacy:
+    state: EXPORT-EXTERNAL
+    class: external_coding
+    via: output text
+    evidence: '2026-09-09'
+    evidence_state_hint: analyst-assigned
+  source_env.domain_aggregate:
+    state: PARTIAL
+    class: derived
+    via: read_urls → registrable_domain, domain_freq; include=[compact] → top shared domains; include=[overlap]
+    caveat: Source-participation frequency is not automatically citation frequency. Derive citation-specific totals
+      from resolved per-run cited flags with explicit units.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  source_env.page_aggregate:
+    state: PARTIAL
+    class: derived
+    via: read_urls → url, runs_read, total_reads; folder, folder_freq; compact top pages
+    caveat: Source-participation frequency is not automatically citation frequency. Derive citation-specific totals
+      from resolved per-run cited flags with explicit units.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  source_env.domain_classification:
+    state: PARTIAL
+    class: derived
+    via: read_urls → site_type (e.g. 'regulator'); high_volume_flag
+    caveat: TI's own heuristic. Say 'TI's site_type heuristic', never treat as ground truth. No operator tagging.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: INFERRED
+  source_env.response_to_citation_join:
+    state: PARTIAL
+    class: direct
+    via: get_run_result → sources[] with cited/opened per URL, per run
+    caveat: Unordered per-run cited membership is available; citation order/positions are not established.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+    ordered: false
+  source_env.proposition_level:
+    state: EXPORT-EXTERNAL
+    class: external_coding
+    via: output + sources
+    evidence: '2026-09-09'
+    evidence_state_hint: analyst-assigned
+  contract.comparison_groups:
+    state: PARTIAL
+    class: direct
+    via: compare_runs accepts any hand-picked run_ids in any order
+    caveat: Comparison is constructed per call, not stored. Which run is 'baseline' is our label.
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  contract.intervention_events:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: No timeline concept. Only the job `label` and created_at.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  contract.model_change_log:
+    state: PARTIAL
+    class: direct
+    via: model per run; profileVersion per compare
+    caveat: Records what was used, not when the vendor changed it.
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  retest.scheduled_repetition:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: Every run is a manual run_compare submission.
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  retest.longitudinal_delta:
+    state: EXPORT-EXTERNAL
+    class: derived
+    via: compare_runs on run_ids from different jobs/dates; include=[overlap]
+    caveat: Possible but constructed per call; nothing tracks a series.
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED for the sets; analyst-assigned for the comparison
+  retest.primary_measure_isolation:
+    state: 'YES'
+    class: direct
+    via: counts.{pages,domains,cited,opened,consulted,actions,citations} per run — no composite index
+    caveat: TI never averages anything into a headline; that is a feature.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  access.explicit_filters:
+    state: PARTIAL
+    class: direct
+    via: list_runs by prompt text / status; include menu on compare
+    caveat: No date-range or label filters on list_runs confirmed.
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  access.pagination_counts:
+    state: 'YES'
+    class: direct
+    via: read_urls_page → offset, limit, returned, total (max 1000 rows/call)
+    evidence: '2026-09-09 pull: total 132'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  access.defined_aggregates:
+    state: PARTIAL
+    class: direct
+    via: Returned counters and frequency fields; definitions partly unresolved
+    caveat: Clear names alone do not establish definitions. Example cited=8 and citations=24 require distinct meanings;
+      weights/classifications remain tool metadata.
+    evidence: 2026-09-09 pull
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  access.file_export:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: No native file-writing operation in the reported inspected surface. External preservation is assessed
+      separately.
+    evidence: Dated operator briefing, editorial review 2026-09-10
+    evidence_state_hint: Classify the actual finding from its evidence; capability state is separate.
+  access.consistent_schema:
+    state: 'YES'
+    class: direct
+    via: compare_runs and get_compare_results share the include menu and shapes
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  operate.persistent_state:
+    state: PARTIAL
+    class: direct
+    via: runs persist and are re-inspectable; nothing mutable to damage
+    caveat: PARTIAL because state exists (runs) but there is no configuration to corrupt — the consequences table
+      has one row.
+    evidence: '2026-09-09'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  operate.billable_operations:
+    state: 'YES'
+    class: direct
+    via: run_compare — prompts × runs × model calls
+    evidence: usage.total_tokens per run
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  operate.irreversible_operations:
+    state: 'YES'
+    class: direct
+    via: run_compare creates billable records
+    caveat: The supplied consequences table records permanent runs and no reversal route; additive is not necessarily
+      reversible.
+    evidence: Dated operator briefing, editorial review 2026-09-10
+    evidence_state_hint: Classify the actual finding from its evidence; capability state is separate.
+  operate.context_cost:
+    state: 'YES'
+    class: direct
+    via: Use compact for orientation and paginated records for complete analysis; verify the external preservation
+      route separately.
+    evidence: '2026-09-08: 9,690-row source-event export'
+    evidence_state_hint: OBSERVED/DOCUMENTED
+  family.human_work:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    caveat: Process instrument only. Its QFO is evidence about machine behavior, never human need (guide §12).
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  family.business_consequence:
+    state: 'NO'
+    class: unavailable
+    via: ''
+    evidence: '2026-09-09'
+    evidence_state_hint: UNKNOWN
+  family.carry_forward_fields:
+    state: PARTIAL
+    class: direct
+    via: model, effort, created_at, run_id; comparison profile and generation time separately
+    caveat: Some provenance is returned. Full configuration, source history, limits and evidence states remain investigator-owned.
+    evidence: '2026-09-09'
+    evidence_state_hint: provenance OBSERVED/DOCUMENTED; the rest analyst-assigned
+  access.external_preservation:
+    state: UNKNOWN
+    class: unavailable
+    via: ''
+    caveat: No complete direct-preservation demonstration added by this package; verify the actual host/client route.
+    evidence: ''
+    evidence_state_hint: Classify the actual finding from its evidence; capability state is separate.
+  baseline.answer_inventory_coverage:
+    state: PARTIAL
+    class: direct
+    via: TI run/job metadata and per-run text
+    caveat: Inventory must be reconciled for the selected task; no newly recovered complete corpus is claimed.
+    evidence: Dated operator briefing, editorial review 2026-09-10
+    evidence_state_hint: Classify the actual finding from its evidence; capability state is separate.
+  baseline.comparison_profile:
+    state: 'YES'
+    class: direct
+    via: compare_runs.meta.profileVersion and generatedAt
+    caveat: Preserve separately from original run settings.
+    evidence: TI operator response example 2026-09-09 section 5a
+    evidence_state_hint: Classify the actual finding from its evidence; capability state is separate.
+  source_env.response_cited_url_set:
+    state: 'YES'
+    class: direct
+    via: get_run_result.sources entries with cited=true, attached to run_id
+    caveat: Unordered membership; claim attribution remains source/answer reading.
+    evidence: Dated operator briefing, editorial review 2026-09-10
+    evidence_state_hint: Classify the actual finding from its evidence; capability state is separate.
+vocabulary:
+  in_prompt_text:
+  - situation record with version label (SYNTHETIC_ASTERON_v1.0)
+  - role/responsibility clause (the manipulated variable)
+  - evidence request (constant across a comparison)
+  - governing regime, when leaving it unnamed would let the model pick one
+  in_instrument_fields:
+  - model, effort, profile, runs (run_compare params)
+  - label (free text on the job — the one human-readable batch name)
+  analyst_owned:
+  - role names assigned to run_ids (OT_SEC, IMPL_ENG, CFO, NEUTRAL…)
+  - record IDs for the investigation (PRODX_R3_4C_B1, RKD_V1_B1)
+  - counting unit and normalization rule (URL / normalized URL / domain / publisher family)
+  - evidence states; the SURFACED / RETRIEVED / READ / CITED distinction as applied
+consequences:
+- op: run_compare
+  effect: submits prompts × runs × model; creates permanent run records
+  reversible: 'no'
+  billable: 'yes'
+  confirm_flag: null
+  note: Approve the exact execution and spending plan. Confirm current batch cap. Set repetition count explicitly;
+    six is the historical reported default.
+change_log:
+- '2026-09-10 v0.1 — first fill from TI briefing (2026-09-09). Not re-pulled today. 52 cells: 23 YES, 9 PARTIAL,
+  7 EXPORT-EXTERNAL, 13 NO, 0 UNKNOWN.'
+- '2026-09-10 v0.2: editorial reconciliation against dated evidence, four added observations; see REFERENCE_CHANGELOG.md
+  and before/after JSON. No live tool check.'
+reviewed_on: '2026-09-10'
+verification_basis: Editorial reconciliation only; original operator-check dates retained.
+historical_context: 81 Asteron conditions are reported; the previous six-job/zero-failure card summary is withheld
+  pending the authoritative run register.

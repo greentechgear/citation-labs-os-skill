@@ -1,0 +1,446 @@
+version: '0.2'
+guide_edition: 'AI Visibility: Diagnose, Intervene, Re-test — 2 Sep 2026'
+states:
+- 'YES'
+- PARTIAL
+- EXPORT-EXTERNAL
+- 'NO'
+- UNKNOWN
+- PLANNED
+classes:
+- direct
+- derived
+- external_coding
+- unavailable
+observations:
+- id: prompt.text
+  group: prompt
+  guide_anchor: Part I §6, §7; Part VIII §38 'exact wording'
+  question: Is the exact prompt wording preserved as measured?
+  definition: The instrument returns the verbatim string that was submitted, not a paraphrase or a title.
+  allowed_classes:
+  - direct
+- id: prompt.stable_id
+  group: prompt
+  guide_anchor: Part VIII §38 'stable IDs', §39
+  question: Does each prompt have an identifier that survives edits and re-runs?
+  definition: A key that can be used to join a prompt to its responses across runs.
+  allowed_classes:
+  - direct
+- id: prompt.grouping
+  group: prompt
+  guide_anchor: Part VIII §38 'grouping'
+  question: Can prompts be grouped, and can the group be filtered on?
+  definition: A field (not a naming convention) that assigns a prompt to a set.
+  allowed_classes:
+  - direct
+- id: prompt.version_history
+  group: prompt
+  guide_anchor: Part I §7 'a changed instrument should look changed in the record'; §38 'history/versioning'; §40
+    known limitation
+  question: If a prompt's wording changes, is the prior wording and the date of change retained?
+  definition: Prior text retrievable, not just a modified timestamp.
+  allowed_classes:
+  - direct
+- id: prompt.provenance_field
+  group: prompt
+  guide_anchor: Part I §2 provenance table; §38 'provenance, or somewhere to attach it'
+  question: Is there a place to record why a prompt is in the set and where it came from?
+  definition: A per-prompt field that can hold the §2 provenance tag and the 'why included' sentence. A topic name
+    pressed into this service is PARTIAL.
+  allowed_classes:
+  - direct
+- id: prompt.situation_record
+  group: prompt
+  guide_anchor: Shared Decision Revision 8, Steps 1-3
+  question: Can a frozen situation record be attached to a prompt or batch as a versioned object?
+  definition: A field or label distinct from the prompt text. Writing it into the prompt is NO for this observation
+    (record that in vocabulary.in_prompt_text).
+  allowed_classes:
+  - direct
+- id: baseline.platform_identity
+  group: baseline
+  guide_anchor: Part II §8 'platform/model/surface'; §38
+  question: Is the engine/model/surface recorded per response?
+  definition: An identifier specific enough to distinguish e.g. AI Overview from AI Mode, or one model version from
+    another.
+  allowed_classes:
+  - direct
+- id: baseline.multi_engine
+  group: baseline
+  guide_anchor: Part VI §28 'platforms differ — report the difference'; Part X §51 (Indig)
+  question: Can the same prompt set be run against more than one engine?
+  definition: More than one engine identifier available on the same prompt set within the instrument.
+  allowed_classes:
+  - direct
+- id: baseline.timestamp
+  group: baseline
+  guide_anchor: Part II §8 'date'
+  question: Is every response dated?
+  definition: Per-response creation time.
+  allowed_classes:
+  - direct
+- id: baseline.run_id
+  group: baseline
+  guide_anchor: Part II §8; R4 checklist 'run ID'
+  question: Is there a stable key tying prompt, settings, answer, and sources together?
+  definition: A run or response identifier that all other records reference.
+  allowed_classes:
+  - direct
+- id: baseline.run_history
+  group: baseline
+  guide_anchor: Part VIII §38 'run history'
+  question: Are past runs retained and enumerable?
+  definition: A list of prior runs with dates, not just the latest.
+  allowed_classes:
+  - direct
+- id: baseline.repeats_within_run
+  group: baseline
+  guide_anchor: Part II §8 'repeat or sampling approach'; Part X §51 (Fishkin/Gumshoe)
+  question: Can one prompt be run N times in one batch to observe variation?
+  definition: A repeat count parameter, with each repetition separately retrievable.
+  allowed_classes:
+  - direct
+- id: baseline.competitors_scored
+  group: baseline
+  guide_anchor: Part II §8 'competitors and aliases'; §38 'competitors'
+  question: Are competitor entities tracked and scored in the same responses?
+  definition: Named competitor list, with per-competitor presence data per response.
+  allowed_classes:
+  - direct
+- id: baseline.verbatim_answer
+  group: baseline
+  guide_anchor: Part II §8 'answer text where needed'; §38 'full responses'; §39 'raw responses'; R4 'exportable
+    verbatim answer'
+  question: Is the complete final answer text retrievable?
+  definition: Complete answer body for a selected response. Access excluding response classes is PARTIAL; assess
+    full selected-set coverage separately.
+  allowed_classes:
+  - direct
+- id: baseline.settings
+  group: baseline
+  guide_anchor: Part II §8 'relevant settings'
+  question: Are the execution settings (effort, tier, profile) recorded per run?
+  definition: Settings retrievable alongside the run, not only settable at submission.
+  allowed_classes:
+  - direct
+- id: baseline.execution_pin
+  group: baseline
+  guide_anchor: Part X §56 'keep current sources dated'; TI briefing §5a profileVersion
+  question: Does the instrument expose a versioned execution environment?
+  definition: A verified identifier for the environment that executed the original research run. Comparison-generation
+    metadata alone is insufficient.
+  allowed_classes:
+  - direct
+- id: process.query_fanout
+  group: zone
+  guide_anchor: Part III §12 'inspect query decomposition where available'; Part X §54 QFO analysis
+  question: Are the searches the engine issued exposed, in order, per run?
+  definition: Ordered list of machine-generated queries. Evidence of machine behavior only (§12, boundary).
+  allowed_classes:
+  - direct
+- id: process.surfaced_set
+  group: zone
+  guide_anchor: Part III §9 Retrieved; Part X §54 retrieval/read/citation analysis
+  question: Is the set of URLs the engine's search returned to it exposed, including those not cited?
+  definition: Per-run URL list broader than the cited set.
+  allowed_classes:
+  - direct
+- id: process.explicit_opens
+  group: zone
+  guide_anchor: Part III §9 Retrieved — 'evidence that the system selected the source'
+  question: Is there a per-URL flag showing the engine opened or read beyond the search listing?
+  definition: A distinct action flag, not inferred from citation.
+  allowed_classes:
+  - direct
+- id: process.query_url_linkage
+  group: zone
+  guide_anchor: TI briefing §3; Part III §12 'inspect sources by branch'
+  question: Can a surfaced URL be joined to the query that produced it?
+  definition: Row-level join. Two separate lists per run is NO.
+  allowed_classes:
+  - direct
+- id: process.retrieval_rank
+  group: zone
+  guide_anchor: TI briefing §3 not exposed
+  question: Is the position of a URL in the engine's search results exposed?
+  definition: Rank integer per surfaced URL.
+  allowed_classes:
+  - direct
+- id: process.reasoning_trace
+  group: zone
+  guide_anchor: TI briefing §3 'reasoning summary'
+  question: Is a prose reasoning summary available and at what scope?
+  definition: Legacy ID retained. Assess the actual summary representation separately from search-event evidence;
+    this does not require or establish raw reasoning or a token-level trace.
+  allowed_classes:
+  - direct
+  - derived
+  - external_coding
+- id: zone.ranked_in_result
+  group: zone
+  guide_anchor: Part III §9 Ranked / In-result — 'upstream discoverability'
+  question: Is the relevant evidence available where the system might find it?
+  definition: Upstream index/availability evidence, not organic rank.
+  allowed_classes:
+  - direct
+  - derived
+- id: zone.retrieved
+  group: zone
+  guide_anchor: Part III §9 Retrieved — 'do not turn not-cited into not-retrieved'
+  question: Do we have evidence the system selected the source?
+  definition: Direct instrument capability from surfaced/consulted membership under the Shared Decision convention
+    or explicit opening evidence with its scope declared. Preserve both separately. Evidence-based inferences elsewhere
+    remain labeled findings, not direct capability.
+  allowed_classes:
+  - direct
+- id: zone.cited
+  group: zone
+  guide_anchor: Part III §9 Cited
+  question: Is the source explicitly used or credited in the answer?
+  definition: Per-response cited URL set, or aggregates thereof. Record resolution (URL vs domain) and auditability
+    in caveat.
+  allowed_classes:
+  - direct
+- id: zone.mentioned
+  group: zone
+  guide_anchor: Part III §9 Mentioned
+  question: Is the brand/product/entity named in the answer?
+  definition: Per-response per-entity presence. Counting in the text is direct; a composite index built on it is
+    derived.
+  allowed_classes:
+  - direct
+  - derived
+  - external_coding
+- id: zone.recommended
+  group: zone
+  guide_anchor: Part III §9 Recommended — included / qualified / best-for / preferred / ruled out
+  question: When choices are compared, how is the brand treated?
+  definition: The five-way coding. A position rank is a lead (derived), not the coding.
+  allowed_classes:
+  - derived
+  - external_coding
+- id: zone.accuracy_framing
+  group: zone
+  guide_anchor: Part III §9 Accuracy / Framing; Part X §50 Wang & Strong
+  question: Are important facts, conditions, and limits represented correctly?
+  definition: Requires a reference truth and human or governed coding. Sentiment/claim extraction is a derived lead.
+  allowed_classes:
+  - derived
+  - external_coding
+- id: zone.answer_adequacy
+  group: zone
+  guide_anchor: Part III §10 — 'do not derive the requirements from the AI answer itself'
+  question: Does the answer contain the elements the task requires?
+  definition: Requires required-answer elements established in Information Design. Instrument supplies text only.
+  allowed_classes:
+  - external_coding
+- id: source_env.domain_aggregate
+  group: source_env
+  guide_anchor: Part III §13, §14 'domain level'
+  question: Which domains recur across the tracked set, with counts?
+  definition: Aggregated citation counts at registrable-domain level.
+  allowed_classes:
+  - direct
+  - derived
+- id: source_env.page_aggregate
+  group: source_env
+  guide_anchor: Part III §14 'page level'
+  question: Which pages recur, with counts?
+  definition: Aggregated citation counts at URL level.
+  allowed_classes:
+  - direct
+  - derived
+- id: source_env.domain_classification
+  group: source_env
+  guide_anchor: Part III §13 'competitors, publishers, communities, standards bodies, regulators'; §37 'external
+    coding'
+  question: Are sources classified by type or relationship, and by whom?
+  definition: Operator-assigned tags are direct (they record a decision). Heuristic labels are derived. Say which.
+  allowed_classes:
+  - direct
+  - derived
+- id: source_env.response_to_citation_join
+  group: source_env
+  guide_anchor: Part III §13; Part VIII §39 'citation records'
+  question: For one response, can the list of URLs it cited be retrieved, with positions?
+  definition: Per-response ordered citation URL list with positions. An unordered set or reverse domain lookup is
+    PARTIAL for this combined requirement.
+  allowed_classes:
+  - direct
+- id: source_env.proposition_level
+  group: source_env
+  guide_anchor: Part III §14 'proposition level'
+  question: Can the specific claim a source is cited for be identified?
+  definition: Requires text and human reading. Instrument supplies text only.
+  allowed_classes:
+  - external_coding
+- id: contract.comparison_groups
+  group: contract
+  guide_anchor: Part V §21; Part VIII §38 'comparison groups'
+  question: Can treated and comparison prompt sets be marked as such?
+  definition: A field or flag meaning 'comparison', not a naming convention. Grouping pressed into service is PARTIAL.
+  allowed_classes:
+  - direct
+- id: contract.intervention_events
+  group: contract
+  guide_anchor: Part V §19 'intervention date/window'; §22 change log; §38 'intervention dates, events'
+  question: Can intervention dates and confounding events be recorded against the timeline?
+  definition: An event log inside the instrument, queryable alongside runs.
+  allowed_classes:
+  - direct
+- id: contract.model_change_log
+  group: contract
+  guide_anchor: Part V §22 'model updates, platform changes'; §38 'model changes'
+  question: Does the instrument record when the engines it measures changed?
+  definition: Engine/model version transitions surfaced to the user.
+  allowed_classes:
+  - direct
+- id: retest.scheduled_repetition
+  group: retest
+  guide_anchor: Part VI §23 're-run the tracked prompt set'
+  question: Does the instrument re-run the same set on a schedule without manual re-submission?
+  definition: A run frequency and next-run date.
+  allowed_classes:
+  - direct
+- id: retest.longitudinal_delta
+  group: retest
+  guide_anchor: Part VI §24–§25; §38 'historical comparison'
+  question: Can baseline and re-test be compared natively, per measure, per engine?
+  definition: Native comparison across dated runs. Manual comparison of two exports is EXPORT-EXTERNAL.
+  allowed_classes:
+  - direct
+  - derived
+- id: retest.primary_measure_isolation
+  group: retest
+  guide_anchor: Part VI §24 'start with the measure you intended to change'; §27 'do not average contradictory results'
+  question: Can one zone's measure be read in isolation, without a composite standing in for it?
+  definition: Per-zone, per-engine numbers retrievable separately from any headline index.
+  allowed_classes:
+  - direct
+- id: access.explicit_filters
+  group: access
+  guide_anchor: Part VIII §39 'explicit filters'
+  question: Are filters explicit, and is 'omit' well-defined?
+  definition: Filter semantics documented; note where omit ≠ enumerate-all.
+  allowed_classes:
+  - direct
+- id: access.pagination_counts
+  group: access
+  guide_anchor: Part VIII §39 'pagination', 'record counts'
+  question: Do paginated results report totals so completeness can be verified?
+  definition: count/total fields with every page.
+  allowed_classes:
+  - direct
+- id: access.defined_aggregates
+  group: access
+  guide_anchor: Part VIII §37 'determine what underlying observation produces the metric'; §39 'defined aggregates'
+  question: For every aggregate the instrument reports, is the formula stated?
+  definition: PARTIAL when components are exposed but the combining formula is not.
+  allowed_classes:
+  - direct
+  - derived
+- id: access.file_export
+  group: access
+  guide_anchor: Part VIII §38 'consistent historical exports'; TI briefing §5b
+  question: Can data be written to a file from the instrument surface?
+  definition: Native instrument operation producing a file. A host/client capture is separately assessed as access.external_preservation.
+  allowed_classes:
+  - direct
+- id: access.consistent_schema
+  group: access
+  guide_anchor: Part VIII §39 'consistent schemas'
+  question: Do like tools return like shapes, and are duplicates resolved?
+  definition: Note unresolved near-duplicate tools in caveat.
+  allowed_classes:
+  - direct
+- id: operate.persistent_state
+  group: operate
+  guide_anchor: XOFU briefing §1
+  question: Does the instrument hold state between sessions that can be damaged?
+  definition: YES means the consequences table on the card is load-bearing.
+  allowed_classes:
+  - direct
+- id: operate.billable_operations
+  group: operate
+  guide_anchor: XOFU briefing §2; TI briefing §2 runs parameter
+  question: Which operations spend money, and are they gated?
+  definition: List in the card's consequences table.
+  allowed_classes:
+  - direct
+- id: operate.irreversible_operations
+  group: operate
+  guide_anchor: XOFU briefing §2
+  question: Which operations cannot be undone, and are they gated?
+  definition: List in the card's consequences table.
+  allowed_classes:
+  - direct
+- id: operate.context_cost
+  group: operate
+  guide_anchor: TI briefing §2 'compact'; XOFU briefing §5a 3.8 MB
+  question: Which calls return payloads too large to read inline, and is there a compact mode?
+  definition: Named calls and the mitigation.
+  allowed_classes:
+  - direct
+- id: family.human_work
+  group: family
+  guide_anchor: Family map; AI Visibility Part VII §33; Information Design Parts I–III
+  question: Does the instrument observe anything about human work or information need?
+  definition: Direct human-work or information-need evidence. TI/XOFU answer-environment records do not supply it;
+    the assistant may use other authorized evidence under Information Design.
+  allowed_classes:
+  - direct
+- id: family.business_consequence
+  group: family
+  guide_anchor: Family map; AI Visibility Part VII §34; Business Impact B–D
+  question: Does the instrument observe anything about organizational consequence?
+  definition: Direct organizational evidence about the specified consequence. AI-answer records do not establish
+    it; evaluate additional authorized business evidence separately.
+  allowed_classes:
+  - direct
+- id: family.carry_forward_fields
+  group: family
+  guide_anchor: AI Visibility Appendix E/F handoff packet
+  question: Does the instrument provide the fields a handoff packet needs — established result, evidence state,
+    provenance, conditions, limits?
+  definition: Provenance and conditions (settings, engine, date) may be direct; evidence state and limits are always
+    analyst-owned.
+  allowed_classes:
+  - direct
+  - external_coding
+- id: baseline.answer_inventory_coverage
+  group: baseline
+  guide_anchor: AI Visibility sections 8, 39; Shared Decision Step 4
+  question: Can the expected response inventory be reconciled against recovered texts, including uncited responses?
+  definition: Task-specific inventory of expected/recovered/missing/failed responses by stable IDs. A route to some
+    answers is only PARTIAL.
+  allowed_classes:
+  - direct
+  - derived
+  - external_coding
+- id: baseline.comparison_profile
+  group: baseline
+  guide_anchor: Shared Decision Appendix K3-K4; TI section 5a
+  question: Is comparison-generation profile metadata available?
+  definition: Returned profile and generation time, separate from original execution settings.
+  allowed_classes:
+  - direct
+- id: source_env.response_cited_url_set
+  group: source_env
+  guide_anchor: AI Visibility sections 8-9, 39
+  question: Can a response cited-URL set be recovered, ordered or unordered?
+  definition: Original-run membership. State native versus reconstructed access and unsupported response classes.
+  allowed_classes:
+  - direct
+  - derived
+  - external_coding
+- id: access.external_preservation
+  group: access
+  guide_anchor: Shared Decision Appendix K5
+  question: Has an external host/client preservation route been demonstrated?
+  definition: Environment-specific direct saving of complete returned data with fidelity and coverage checks. Saying
+    the assistant can write a file is not a demonstration.
+  allowed_classes:
+  - direct
+reviewed_on: '2026-09-10'
+revision_basis: Editorial review of dated operator evidence and Shared Decision Revision 8; no new live checks.

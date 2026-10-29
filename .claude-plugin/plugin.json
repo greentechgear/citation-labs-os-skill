@@ -1,0 +1,9 @@
+{
+  "name": "citation-labs-os",
+  "description": "Run the Citation Labs Operating System (Garrett French's four Field Guides and six assistant tasks) to diagnose AI visibility, plan and re-test information changes, prepare interviews, and trace business impact without inflating claims.",
+  "version": "0.2.2",
+  "author": { "name": "greentechgear" },
+  "homepage": "https://citationlabs.com/operating-system/",
+  "repository": "https://github.com/greentechgear/citation-labs-os-skill",
+  "skills": "./skills/"
+}
