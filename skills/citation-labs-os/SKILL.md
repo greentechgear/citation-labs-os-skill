@@ -25,6 +25,7 @@ Read on demand. Do not load all of them up front; the guides are long.
 | `references/instruments/` | Thinking Inspector briefing, ti.card, observation catalog, instrument card schema, AI Visibility Instrument Reference (XOFU vs TI vs Citation Inspector), Citation Inspector | Only for connected-tool work or when evaluating a measurement tool |
 | `references/sources.md` | Where each file came from, versions, how to refresh | When versions matter |
 | `additions/collecting-live-answers.md` | **Packager's addition, not Citation Labs content.** Observing ChatGPT, Perplexity and similar answers yourself through browser control (Claude in Chrome), with personalization removed first | Task 01 or 05A whenever the answers have not been supplied and a browser-control tool is available |
+| `additions/browser-readout.md`, `additions/readout-template.html` | **Packager's addition, not Citation Labs content.** How to show the finished result as a self-contained HTML page in the user's browser (or as an artifact in Claude.ai), plus the template | At the end of any task that returns a working record or readout |
 
 To navigate a guide, list its headings first (`grep -n '^#' references/guides/<guide>.md`) and then read the contiguous section you need. The task instructions say to read the relevant contiguous section rather than isolated snippets; honor that.
 
@@ -132,6 +133,8 @@ Without any instrument, you can still do real work: build candidate prompt sets,
 ## Finish and hand over
 
 Return the working result in the receiving guide's record format, with supporting locators, coverage, principal limitations, and one justified next action. Label the **task status** (distinct from evidence state): **complete for its scope**, **partial** with a named gap, or **a plan awaiting evidence or approval**. Lead with what was measured and the most consequential observation; put wide data in attachments or files, not a sprawling table. If interrupted, record the output location, completed scope, and exact next action so another session can resume.
+
+**Addition (not part of the OS): show the result in the browser.** After writing the Markdown result, render it as a page the user can read without opening the Markdown file, following `additions/browser-readout.md`: fill `additions/readout-template.html`, save it next to the Markdown, and open it in the user's default browser (in Claude.ai, show it as an artifact). The Markdown stays the record; the page adds nothing it does not say and never upgrades an evidence state.
 
 When the next question belongs to another guide or a specialist, end with the **Evidence to Carry Forward** block. Copy the established result verbatim; do not upgrade it on arrival.
 

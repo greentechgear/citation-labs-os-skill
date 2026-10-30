@@ -1,0 +1,284 @@
+<!doctype html>
+<!--
+  Citation Labs OS readout template. Packager's addition, not Citation Labs content.
+  See additions/browser-readout.md for how to use it.
+
+  To make a readout: copy this whole file, keep <head> and <style> unchanged,
+  then replace everything inside the main element with the result. Use only the components
+  shown below and delete the ones the result does not need. The example content is
+  the guides' synthetic Industrial Gateway case; none of it may remain in a real readout.
+
+  Rules:
+  - The Markdown result is the record. This page is a view of it and adds nothing
+    the Markdown does not say. Regenerate it from scratch whenever the Markdown changes.
+  - HTML-escape every piece of text that came from a web page, AI answer, interview,
+    or tool output (& < > " as entities). Never paste raw HTML from those sources.
+  - No <script>, no external stylesheets, fonts, or images. The Content-Security-Policy
+    below blocks them anyway, so the page works offline and leaks nothing.
+  - Evidence-state tags (ev-observed, ev-modeled, ev-inferred, ev-hypothesis, ev-unknown)
+    must match the labels in the Markdown. Never upgrade one for the page.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:">
+<meta name="color-scheme" content="light dark">
+<title>AI Visibility Readout</title>
+<style>
+:root {
+  --bg: #f7f6f2; --surface: #ffffff; --ink: #1d1c1a; --muted: #6b6862; --line: #e2dfd8;
+  --accent: #2b5d8a;
+  --yes: #1f7a4d; --yes-bg: #e3f2e9;
+  --partial: #8a5a00; --partial-bg: #fbf0d9;
+  --no: #6b6862; --no-bg: #efede8;
+  --risk: #a3322a; --risk-bg: #f8e3e0;
+  --unknown: #5b5b8f; --unknown-bg: #e9e9f5;
+  --obs: #2b5d8a; --interp: #8a5a00; --act: #1f7a4d;
+}
+@media screen and (prefers-color-scheme: dark) {
+  :root {
+    --bg: #161615; --surface: #1f1f1d; --ink: #ecebe7; --muted: #a29f97; --line: #34332f;
+    --accent: #7fb0dc;
+    --yes: #7fcfa2; --yes-bg: #1d3328;
+    --partial: #e3b55c; --partial-bg: #3a2f17;
+    --no: #9b978d; --no-bg: #2a2a27;
+    --risk: #f0948a; --risk-bg: #3d2220;
+    --unknown: #b0b0e6; --unknown-bg: #2a2a40;
+    --obs: #7fb0dc; --interp: #e3b55c; --act: #7fcfa2;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+main { max-width: 1040px; margin: 0 auto; padding: 40px 20px 64px; }
+h1 { font-size: 1.9rem; line-height: 1.2; margin: 4px 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 1.15rem; margin: 0 0 12px; }
+h3 { font-size: 1rem; margin: 0 0 6px; }
+p { margin: 0 0 10px; }
+a { color: var(--accent); }
+code { font: 0.9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+section { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; margin: 0 0 18px; }
+.kicker { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.75rem; color: var(--muted); margin: 0; }
+.meta { color: var(--muted); font-size: 0.92rem; }
+.masthead { padding: 0 2px 18px; }
+.note { color: var(--muted); font-size: 0.88rem; }
+
+/* Task status: complete for its scope / partial / plan awaiting evidence or approval */
+.status { display: inline-block; font-size: 0.82rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; margin-top: 6px; }
+.status-complete { color: var(--yes); background: var(--yes-bg); }
+.status-partial { color: var(--partial); background: var(--partial-bg); }
+.status-plan { color: var(--unknown); background: var(--unknown-bg); }
+
+/* Lead: what was measured and the most consequential observation */
+.lead h2 { color: var(--accent); }
+.lead p.headline { font-size: 1.2rem; line-height: 1.45; font-weight: 500; }
+
+/* Stat tiles */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tile { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+.tile .n { font-size: 1.6rem; font-weight: 650; line-height: 1.1; }
+.tile .l { font-size: 0.85rem; color: var(--muted); }
+
+/* Tables */
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; vertical-align: top; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+th { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); font-weight: 600; }
+td.id, th.id { white-space: nowrap; font-weight: 600; position: sticky; left: 0; background: var(--surface); }
+td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+
+/* Zone marks. Always carry a text label; color is never the only signal. */
+.z { display: inline-block; font-size: 0.78rem; font-weight: 600; padding: 2px 7px; border-radius: 5px; margin: 1px 2px 1px 0; white-space: nowrap; }
+.z-yes { color: var(--yes); background: var(--yes-bg); }
+.z-partial { color: var(--partial); background: var(--partial-bg); }
+.z-no { color: var(--no); background: var(--no-bg); font-weight: 500; }
+.z-risk { color: var(--risk); background: var(--risk-bg); }
+.z-unknown { color: var(--unknown); background: var(--unknown-bg); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+
+/* Evidence-state tags */
+.ev { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; padding: 1px 6px; border-radius: 4px; vertical-align: 1px; border: 1px solid currentColor; }
+.ev-observed { color: var(--yes); }
+.ev-modeled { color: var(--accent); }
+.ev-inferred { color: var(--partial); }
+.ev-hypothesis { color: var(--risk); }
+.ev-unknown { color: var(--unknown); }
+
+/* Finding: observation, interpretation, proposed action kept visibly apart */
+.finding { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
+.finding:first-of-type { border-top: 0; padding-top: 0; margin-top: 0; }
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.trio > div { border-left: 3px solid; padding: 2px 0 2px 12px; font-size: 0.94rem; }
+.trio .label { display: block; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; font-weight: 700; margin-bottom: 2px; }
+.trio .obs { border-color: var(--obs); } .trio .obs .label { color: var(--obs); }
+.trio .interp { border-color: var(--interp); } .trio .interp .label { color: var(--interp); }
+.trio .act { border-color: var(--act); } .trio .act .label { color: var(--act); }
+blockquote { margin: 8px 0; padding: 6px 12px; border-left: 3px solid var(--line); color: var(--muted); font-size: 0.92rem; }
+
+/* Next action */
+.next h2 { color: var(--act); }
+
+/* Definition lists: coverage, limits, carry forward */
+dl.kv { display: grid; grid-template-columns: minmax(140px, 220px) 1fr; gap: 6px 16px; margin: 0; font-size: 0.93rem; }
+dl.kv dt { color: var(--muted); }
+dl.kv dd { margin: 0; }
+
+footer { color: var(--muted); font-size: 0.82rem; padding: 4px 2px; }
+
+@media (max-width: 720px) {
+  main { padding: 24px 16px 48px; }
+  h1 { font-size: 1.5rem; }
+  section { padding: 16px; }
+  .trio { grid-template-columns: 1fr; }
+  dl.kv { grid-template-columns: 1fr; gap: 2px; }
+  dl.kv dd { margin-bottom: 8px; }
+}
+@media print {
+  section { break-inside: avoid; border-color: #ccc; }
+  .scroll { overflow: visible; }
+}
+</style>
+</head>
+<body>
+<main>
+
+  <!-- MASTHEAD: kicker names the OS, the task, and the working record. Status is the task status, not an evidence state. -->
+  <header class="masthead">
+    <p class="kicker">Citation Labs OS · Task 01 Baseline · AI Visibility Plan + Readout</p>
+    <h1>Industrial gateway security prompts: baseline</h1>
+    <p class="meta">Observed 2026-03-10 · 4 prompts · ChatGPT, Perplexity · 1 run per prompt per system</p>
+    <span class="status status-complete">Complete for its scope</span>
+    <!-- or: <span class="status status-partial">Partial: Perplexity P4 failed</span>
+             <span class="status status-plan">Plan awaiting approval</span> -->
+  </header>
+
+  <!-- LEAD: what was measured, then the single most consequential observation. Two or three sentences. -->
+  <section class="lead">
+    <h2>What we found</h2>
+    <p class="headline">The product is already mentioned on most technical prompts, but third-party sources are cited for the security claims and version conditions are described unevenly.</p>
+    <p class="note">The problem is not "more AI visibility". It is where the security evidence lives and how specific it is.</p>
+  </section>
+
+  <!-- TILES: headline counts. Every count shows its denominator and counting unit. -->
+  <section>
+    <h2>At a glance</h2>
+    <div class="tiles">
+      <div class="tile"><div class="n">6/8</div><div class="l">responses mention the product</div></div>
+      <div class="tile"><div class="n">1/8</div><div class="l">responses cite a company page</div></div>
+      <div class="tile"><div class="n">2/8</div><div class="l">responses recommend it, qualified</div></div>
+      <div class="tile"><div class="n">3/8</div><div class="l">responses state a version condition wrongly</div></div>
+    </div>
+    <p class="note" style="margin-top:10px">Unit: responses, one run per prompt per system, n = 8 (4 prompts × 2 systems).</p>
+  </section>
+
+  <!-- MEASURED SET: prompts with original IDs and why each is included. -->
+  <section>
+    <h2>Measured set</h2>
+    <div class="scroll"><table>
+      <thead><tr><th class="id">ID</th><th>Prompt</th><th>Why it is included</th></tr></thead>
+      <tbody>
+        <tr><td class="id">P1</td><td>Which industrial IoT gateways are certified to IEC 62443?</td><td>Strategic importance</td></tr>
+        <tr><td class="id">P2</td><td>How do industrial gateways handle firmware updates offline?</td><td>Observed human question (sales calls)</td></tr>
+        <tr><td class="id">P3</td><td>Compare industrial gateways for a security review</td><td>Diagnostic probe</td></tr>
+        <tr><td class="id">P4</td><td>Does [product] support signed firmware on version 3?</td><td>Accuracy probe</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ZONE MATRIX: one row per prompt, one column per system. Each cell lists the zone marks for that response.
+       The six zones are separate checks, not a funnel. Use z-unknown for zones that were not observable. -->
+  <section>
+    <h2>Zones by prompt</h2>
+    <div class="scroll"><table>
+      <thead><tr><th class="id">ID</th><th>ChatGPT</th><th>Perplexity</th></tr></thead>
+      <tbody>
+        <tr><td class="id">P1</td>
+          <td><span class="z z-yes">Mentioned</span><span class="z z-no">Not cited</span><span class="z z-unknown">Retrieved ?</span></td>
+          <td><span class="z z-yes">Mentioned</span><span class="z z-yes">Cited</span><span class="z z-partial">Recommended, qualified</span></td></tr>
+        <tr><td class="id">P2</td>
+          <td><span class="z z-yes">Mentioned</span><span class="z z-no">Not cited</span></td>
+          <td><span class="z z-no">Not mentioned</span><span class="z z-no">Not cited</span></td></tr>
+        <tr><td class="id">P3</td>
+          <td><span class="z z-yes">Mentioned</span><span class="z z-partial">Recommended, qualified</span></td>
+          <td><span class="z z-yes">Mentioned</span><span class="z z-no">Not cited</span></td></tr>
+        <tr><td class="id">P4</td>
+          <td><span class="z z-yes">Mentioned</span><span class="z z-risk">Version wrong</span></td>
+          <td><span class="z z-no">Not mentioned</span><span class="z z-unknown">Run failed</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="legend">
+      <span><span class="z z-yes">Green</span> present</span>
+      <span><span class="z z-partial">Amber</span> qualified or partial</span>
+      <span><span class="z z-no">Grey</span> absent (explicit zero)</span>
+      <span><span class="z z-risk">Red</span> accuracy or trust problem</span>
+      <span><span class="z z-unknown">Purple</span> unknown, missing, or failed</span>
+    </div>
+  </section>
+
+  <!-- FINDINGS: each one keeps observation, interpretation, and proposed action in separate columns.
+       Tag the evidence state of each part. Quote supporting excerpts with <blockquote>, HTML-escaped. -->
+  <section>
+    <h2>Findings</h2>
+    <article class="finding">
+      <h3>Security claims are cited to third parties</h3>
+      <div class="trio">
+        <div class="obs"><span class="label">Observation</span><span class="ev ev-observed">OBSERVED</span> On P1 and P3, certification claims about the product cite an analyst blog and a distributor page, not the company.
+          <blockquote>"…certified to IEC 62443-4-2 according to a 2024 distributor listing…"</blockquote></div>
+        <div class="interp"><span class="label">Interpretation</span><span class="ev ev-inferred">INFERRED</span> The company's certificate evidence is fragmented across PDFs, so systems may prefer pages that state it in one place. Retrieval of company pages is UNKNOWN.</div>
+        <div class="act"><span class="label">Proposed action</span>Read the cited distributor page to see what it actually supports, then check whether a company page states the certificate scope at all.</div>
+      </div>
+    </article>
+    <article class="finding">
+      <h3>Version 3 firmware is misdescribed</h3>
+      <div class="trio">
+        <div class="obs"><span class="label">Observation</span><span class="ev ev-observed">OBSERVED</span> ChatGPT P4 says signed firmware arrived in version 4.</div>
+        <div class="interp"><span class="label">Interpretation</span><span class="ev ev-hypothesis">HYPOTHESIS</span> Release notes do not state version conditions plainly.</div>
+        <div class="act"><span class="label">Proposed action</span>Confirm the true version history with product engineering before treating this as an accuracy error.</div>
+      </div>
+    </article>
+  </section>
+
+  <!-- COVERAGE AND LIMITS: expected, obtained, missing, failed are four different conditions. -->
+  <section>
+    <h2>Coverage and limits</h2>
+    <dl class="kv">
+      <dt>Expected / obtained</dt><dd>8 responses expected, 7 obtained, 1 failed (Perplexity P4)</dd>
+      <dt>Conditions</dt><dd>Signed out where possible; ChatGPT Free, memory off; US English; 2026-03-10</dd>
+      <dt>Not observable</dt><dd>Retrieved zone on both systems <span class="ev ev-unknown">UNKNOWN</span></dd>
+      <dt>Principal limits</dt><dd>One run per prompt, so these are single observations, not rates. No demand data per prompt.</dd>
+    </dl>
+  </section>
+
+  <!-- NEXT ACTION: exactly one, with why. -->
+  <section class="next">
+    <h2>Next action</h2>
+    <p><strong>Read the three cited third-party pages and record what each one actually supports.</strong></p>
+    <p class="note">Why: the diagnosis depends on whether those pages carry evidence the company lacks, or just restate it.</p>
+  </section>
+
+  <!-- CARRY FORWARD: include only when the next question belongs to another guide or specialist. Copy verbatim from the Markdown. -->
+  <section>
+    <h2>Evidence to carry forward</h2>
+    <dl class="kv">
+      <dt>Originating guide</dt><dd>AI Visibility, Task 01</dd>
+      <dt>Established result</dt><dd>Company security evidence is rarely cited on the measured prompts; third-party sources carry the certification claims.</dd>
+      <dt>Evidence state</dt><dd><span class="ev ev-observed">OBSERVED</span></dd>
+      <dt>Next guide</dt><dd>Information Design</dd>
+      <dt>Decision to inform</dt><dd>Whether to build one governed security evidence resource</dd>
+    </dl>
+  </section>
+
+  <!-- FOOTER: always name the Markdown record this page was generated from. -->
+  <footer>
+    Generated 2026-03-10 from <code>baseline-readout.md</code>. The Markdown file is the record; this page is a view of it.
+    Citation Labs Operating System by Garrett French, citationlabs.com.
+  </footer>
+
+</main>
+</body>
+</html>
